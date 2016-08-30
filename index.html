@@ -1,0 +1,402 @@
+<!DOCTYPE HTML>
+
+<html>
+
+  <head>
+
+    <title>Mars Rover Curiosity Image Library</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <!-- Stylesheets -->
+    <link href="./css/bootstrap-datepicker.css" rel="stylesheet" />
+    <link href="./css/style.css" rel="stylesheet" />
+
+  </head>
+
+  <body>
+
+    <script>
+
+      window.onload = function() {
+
+        $('#input-date').datepicker({
+          format: "yyyy/mm/dd",
+          autoclose: true
+        });
+
+        $('#aboutModal').on('shown.bs.modal', function () {
+          $('#myInput').focus()
+        });
+
+      }
+
+      function clearResults() {
+
+        var ourRow = document.getElementById('row');
+        ourRow.innerHTML = '';
+        var ourDate = document.getElementById('input-date');
+        ourDate.value = null;
+
+      }
+
+      var apiKey = "lRkz7VJwmEAEV0pdPXPRa74TUKrZfMQyX8fLO2tU";
+
+      function loadImages(_pageNo) {
+
+        var pageNo = _pageNo;
+
+        var cameraSelect = document.getElementById('select-camera');
+        var cameraSelectValue = cameraSelect.options[cameraSelect.selectedIndex].value;
+
+        var ourDate = document.getElementById('input-date').value;
+        ourDate = ourDate.replace(new RegExp('/', 'g'), '-');
+
+        var ourRow = document.getElementById('row');
+
+        if (typeof ourDate === undefined || ourDate === null || ourDate == '') {
+
+          ourRow.innerHTML = '<p>Unfortunately, no images were found for these search terms.</p>'
+
+        }
+
+        if (typeof pageNo == undefined || pageNo == null) {
+
+          if (typeof ourDate !== undefined && ourDate !== null && cameraSelectValue !== 'All') {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&camera='+cameraSelectValue+'&api_key='+apiKey, false);
+            xhr.setRequestHeader('X-Auth-Token', apiKey);
+            xhr.send();
+
+          } else if (typeof ourDate !== undefined && ourDate !== null && ourDate != '' && cameraSelectValue === 'All') {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&api_key='+apiKey, false);
+            xhr.setRequestHeader('X-Auth-Token', apiKey);
+            xhr.send();
+
+          }
+
+        } else {
+
+          if (typeof ourDate !== undefined && ourDate !== null && cameraSelectValue !== 'All') {
+
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&camera='+cameraSelectValue+'&page='+pageNo+'&api_key='+apiKey, false);
+            xhr.setRequestHeader('X-Auth-Token', apiKey);
+            xhr.send();
+
+          } else if (typeof ourDate !== undefined && ourDate !== null && cameraSelectValue === 'All') {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&page='+pageNo+'&api_key='+apiKey, false);
+            xhr.setRequestHeader('X-Auth-Token', apiKey);
+            xhr.send();
+
+          }
+
+        }
+
+        if (xhr.status == 400 || xhr.status == 500) {
+
+          ourRow.innerHTML = '<p>Unfortunately, no images were found for these search terms.</p>'
+
+        }
+
+        if (xhr.readyState == 4 && xhr.status == 200) {
+
+          var ourData = JSON.parse(xhr.responseText);
+
+          var beginTable = '<table>';
+
+          for (i = 1; i < ourData.photos.length; i++) {
+
+            if (i == 1) {
+
+              beginTable += '<tr><td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
+
+            } else if (i > 1 && i < 5) {
+
+              beginTable += '<td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
+
+            } else if (i % 5 == 0) {
+
+              beginTable += '<td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td></tr>';
+
+            } else if (i % 5 == 1) {
+
+              beginTable += '<tr><td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
+
+            } else {
+
+              beginTable += '<td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
+
+            }
+
+          }
+
+          beginTable += '</table>';
+
+          ourRow.innerHTML = beginTable;
+
+          if (ourData.photos.length == 25 && (typeof pageNo == undefined || pageNo == null)) {
+
+            ourRow.innerHTML += '<button type="button" class="btn btn-default pull-right" onclick="loadImages(2)">Next Page <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>';
+
+          } else if (ourData.photos.length == 25 && typeof pageNo != undefined && pageNo != null) {
+
+            ourRow.innerHTML += '<button type="button" class="btn btn-default pull-right" onclick="loadImages('+(pageNo + 1)+')">Next Page <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>';
+
+          }
+
+          $('[data-toggle="tooltip"]').tooltip();
+
+        }
+
+      }
+
+    </script>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+
+      <div class="container-fluid">
+
+        <div class="navbar-header">
+
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+
+          </button>
+
+          <a class="navbar-brand" href="#">
+            <img alt="Brand" src="assets/img/mars.png" style="height: 25px;">
+          </a>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+          <ul class="nav navbar-nav navbar-right">
+
+            <li><a href="#" data-toggle="modal" data-target="#aboutModal">About</a></li>
+
+          </ul>
+
+        </div>
+
+      </div>
+
+    </nav>
+
+    <div class="container-fluid">
+
+      <div class="row">
+
+        <div class="col-sm-5 col-sm-offset-1" id="form-area">
+
+          <h1>Image Filtering</h1>
+
+          <form>
+
+            <div class="form-group">
+
+              <label for="input-sol">Date</label>
+
+              <div class="input-group date">
+
+                <input type="text" data-provide="datepicker" data-date-end-date="0d" id="input-date" class="form-control">
+                  <span class="input-group-addon">
+                    <i class="glyphicon glyphicon-th">
+                    </i>
+                  </span>
+
+              </div>
+
+            </div>
+
+            <div class="form-group">
+
+              <label for="select-camera">Camera</label>
+
+              <select class="form-control" id="select-camera">
+
+                <option value="All">All Cameras</option>
+                <option value="FHAZ">FHAZ</option>
+                <option value="NAVCAM">NAVCAM</option>
+                <option value="MAST">MAST</option>
+                <option value="CHEMCAM">CHEMCAM</option>
+                <option value="MAHLI">MAHLI</option>
+                <option value="MARDI">MARDI</option>
+                <option value="RHAZ">RHAZ</option>
+
+              </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <button id="searchButton" type="button" class="btn btn-default pull-right" onclick="loadImages()">Search <i class="fa fa-search" aria-hidden="true"></i></button>
+
+                <button id="clearButton" type="button" class="btn btn-default pull-right" onclick="clearResults()">Reset <i class="fa fa-refresh" aria-hidden="true"></i></button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+        <div class="col-sm-5" id="instruction-area">
+
+          <!-- Nav tabs -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab"><h1><i class="fa fa-info-circle" aria-hidden="true"></i> How to Use</h1></a></li>
+            <li role="presentation"><a href="#cameras" aria-controls="cameras" role="tab" data-toggle="tab"><h1><i class="fa fa-camera" aria-hidden="true"></i> Cameras</h1></a></li>
+          </ul>
+
+          <!-- Tab panes -->
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">
+
+              <p>In order to view images captured by Curiosity, select an Earth date and a choice of camera (this defaults to all of Curiosity's onboard cameras), then click the Search button.</p>
+
+              <p>Search responses are limited to twenty-five results per page. Search queries that return more than twenty-five responses will be paginated - to access further pages, click on the 'Next Page <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>' button that is displayed.</p>
+
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="cameras">
+
+              <p>Curiosity is equipped with seven onboard cameras, each of which performs a different function.</p>
+
+              <p>The Camera dropdown menu allows you to filter search results based on a particular Curiosity camera.</p>
+
+              <table class="table table-striped">
+
+                <tr>
+                  <th>Abbrev.</th>
+                  <th>Full Name</th>
+                </tr>
+
+                <tr>
+                  <td>FHAZ</td>
+                  <td>Front Hazard Avoidance Camera</td>
+                </tr>
+
+                <tr>
+                  <td>NAVCAM</td>
+                  <td>Navigation Camera</td>
+                </tr>
+
+                <tr>
+                  <td>MAST</td>
+                  <td>Mast Camera</td>
+                </tr>
+
+                <tr>
+                  <td>CHEMCAM</td>
+                  <td>Chemistry and Camera Complex</td>
+                </tr>
+
+                <tr>
+                  <td>MAHLI</td>
+                  <td>Mars Hand Lens Imager</td>
+                </tr>
+
+                <tr>
+                  <td>MARDI</td>
+                  <td>Mars Descent Imager</td>
+                </tr>
+
+                <tr>
+                  <td>RHAZ</td>
+                  <td>Rear Hazard Avoidance Camera</td>
+                </tr>
+
+              </table>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-sm-10 col-sm-offset-1" id="row">
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <footer class="footer">
+
+      <div class="container-fluid">
+
+        <div class="row">
+
+          <div class="col-sm-12">
+
+            <a href="http://www.nasa.gov/" title="NASA - National Aeronautics and Space Administration" target="_blank">
+              <img src="assets/img/logo_nasa.png" class="pull-right" style="height:40px;margin-top:10px;" />
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </footer>
+
+    <div class="modal fade" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalLabel">
+
+      <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+          <div class="modal-header">
+
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+            <h4 class="modal-title" id="aboutModalLabel">About the Mars Rover Curiosity Image Library</h4>
+
+          </div>
+
+          <div class="modal-body">
+
+            <p>Developed by <a href="http://www.stuartmccoll.co.uk/" target="_blank">Stuart McColl</a> using <a href="https://api.nasa.gov/api.html#MarsPhotos" target="_blank">NASA's Mars Rover Photos API</a>.</p>
+
+          </div>
+
+          <div class="modal-footer">
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close <i class="fa fa-times" aria-hidden="true"></i></button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <script src="./js/bootstrap-datepicker.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+  </body>
+
+</html>
