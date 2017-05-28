@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!doctype html>
 
 <html>
 
@@ -14,155 +14,14 @@
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <!-- Stylesheets -->
-    <link href="./css/bootstrap-datepicker.css" rel="stylesheet" />
-    <link href="./css/style.css" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/bootstrap-datepicker.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+    <!-- JavaScript -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 
   </head>
 
   <body>
-
-    <script>
-
-      window.onload = function() {
-
-        $('#input-date').datepicker({
-          format: "yyyy/mm/dd",
-          autoclose: true
-        });
-
-        $('#aboutModal').on('shown.bs.modal', function () {
-          $('#myInput').focus()
-        });
-
-      }
-
-      function clearResults() {
-
-        var ourRow = document.getElementById('row');
-        ourRow.innerHTML = '';
-        var ourDate = document.getElementById('input-date');
-        ourDate.value = null;
-
-      }
-
-      var apiKey = "lRkz7VJwmEAEV0pdPXPRa74TUKrZfMQyX8fLO2tU";
-
-      function loadImages(_pageNo) {
-
-        var pageNo = _pageNo;
-
-        var cameraSelect = document.getElementById('select-camera');
-        var cameraSelectValue = cameraSelect.options[cameraSelect.selectedIndex].value;
-
-        var ourDate = document.getElementById('input-date').value;
-        ourDate = ourDate.replace(new RegExp('/', 'g'), '-');
-
-        var ourRow = document.getElementById('row');
-
-        if (typeof ourDate === undefined || ourDate === null || ourDate == '') {
-
-          ourRow.innerHTML = '<p>Unfortunately, no images were found for these search terms.</p>'
-
-        }
-
-        if (typeof pageNo == undefined || pageNo == null) {
-
-          if (typeof ourDate !== undefined && ourDate !== null && cameraSelectValue !== 'All') {
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&camera='+cameraSelectValue+'&api_key='+apiKey, false);
-            xhr.setRequestHeader('X-Auth-Token', apiKey);
-            xhr.send();
-
-          } else if (typeof ourDate !== undefined && ourDate !== null && ourDate != '' && cameraSelectValue === 'All') {
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&api_key='+apiKey, false);
-            xhr.setRequestHeader('X-Auth-Token', apiKey);
-            xhr.send();
-
-          }
-
-        } else {
-
-          if (typeof ourDate !== undefined && ourDate !== null && cameraSelectValue !== 'All') {
-
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&camera='+cameraSelectValue+'&page='+pageNo+'&api_key='+apiKey, false);
-            xhr.setRequestHeader('X-Auth-Token', apiKey);
-            xhr.send();
-
-          } else if (typeof ourDate !== undefined && ourDate !== null && cameraSelectValue === 'All') {
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date='+ourDate+'&page='+pageNo+'&api_key='+apiKey, false);
-            xhr.setRequestHeader('X-Auth-Token', apiKey);
-            xhr.send();
-
-          }
-
-        }
-
-        if (xhr.status == 400 || xhr.status == 500) {
-
-          ourRow.innerHTML = '<p>Unfortunately, no images were found for these search terms.</p>'
-
-        }
-
-        if (xhr.readyState == 4 && xhr.status == 200) {
-
-          var ourData = JSON.parse(xhr.responseText);
-
-          var beginTable = '<table>';
-
-          for (i = 1; i < ourData.photos.length; i++) {
-
-            if (i == 1) {
-
-              beginTable += '<tr><td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
-
-            } else if (i > 1 && i < 5) {
-
-              beginTable += '<td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
-
-            } else if (i % 5 == 0) {
-
-              beginTable += '<td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td></tr>';
-
-            } else if (i % 5 == 1) {
-
-              beginTable += '<tr><td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
-
-            } else {
-
-              beginTable += '<td><a href="'+ourData.photos[i].img_src+'" title="Open Image in New Tab/Window" target="_blank"><img src="'+ourData.photos[i].img_src+'" class="img-thumbnail" data-toggle="tooltip" data-placement="bottom" title="Image captured by Curiosity\'s '+ourData.photos[i].camera.full_name+' on Mars Sol '+ourData.photos[i].sol+' (Approx. Earth Date '+ourData.photos[i].earth_date+')" /></a></td>';
-
-            }
-
-          }
-
-          beginTable += '</table>';
-
-          ourRow.innerHTML = beginTable;
-
-          if (ourData.photos.length == 25 && (typeof pageNo == undefined || pageNo == null)) {
-
-            ourRow.innerHTML += '<button type="button" class="btn btn-default pull-right" onclick="loadImages(2)">Next Page <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>';
-
-          } else if (ourData.photos.length == 25 && typeof pageNo != undefined && pageNo != null) {
-
-            ourRow.innerHTML += '<button type="button" class="btn btn-default pull-right" onclick="loadImages('+(pageNo + 1)+')">Next Page <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>';
-
-          }
-
-          $('[data-toggle="tooltip"]').tooltip();
-
-        }
-
-      }
-
-    </script>
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
 
@@ -180,7 +39,7 @@
           </button>
 
           <a class="navbar-brand" href="#">
-            <img alt="Brand" src="assets/img/mars.png" style="height: 25px;">
+            <img alt="Mars Planet Icon" src="{{ url_for('static', filename='img/mars.png') }}" style="height: 25px;" />
           </a>
 
         </div>
@@ -198,6 +57,10 @@
       </div>
 
     </nav>
+
+    {% block content %}
+
+    {% endblock %}
 
     <div class="container-fluid">
 
@@ -246,7 +109,7 @@
 
             <div class="form-group">
 
-              <button id="searchButton" type="button" class="btn btn-default " ontouchstart="loadImages()" onclick="loadImages()">Search <i class="fa fa-search" aria-hidden="true"></i></button>
+              <button id="searchButton" type="button" class="btn btn-default " ontouchstart="loadImages();" onclick="loadImages();">Search <i class="fa fa-search" aria-hidden="true"></i></button>
 
               <button id="clearButton" type="button" class="btn btn-default " ontouchstart="clearResults()" onclick="clearResults()">Reset <i class="fa fa-refresh" aria-hidden="true"></i></button>
 
@@ -351,7 +214,7 @@
           <div class="col-sm-12">
 
             <a href="http://www.nasa.gov/" title="NASA - National Aeronautics and Space Administration" target="_blank">
-              <img src="assets/img/logo_nasa.png" class="pull-right" style="height:40px;margin-top:10px;" />
+              <img src="{{ url_for('static', filename='img/logo_nasa.png') }}" alt="NASA Logo" title="NASA Logo" class="pull-right" style="height:40px;margin-top:10px;" />
             </a>
 
           </div>
@@ -378,7 +241,7 @@
 
           <div class="modal-body">
 
-            <p>Developed by <a href="http://www.stuartmccoll.co.uk/" target="_blank">Stuart McColl</a> using <a href="https://api.nasa.gov/api.html#MarsPhotos" target="_blank">NASA's Mars Rover Photos API</a>.</p>
+            <p>Developed by <a href="http://www.stuartmccoll.co.uk/" title="Stuart McColl - Design &amp; Development" target="_blank">Stuart McColl</a> using <a href="https://api.nasa.gov/api.html#MarsPhotos" title="NASA's Mars Rover Photos API" target="_blank">NASA's Mars Rover Photos API</a>.</p>
 
           </div>
 
@@ -394,7 +257,7 @@
 
     </div>
 
-    <script src="./js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-datepicker.min.js') }}"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
   </body>
